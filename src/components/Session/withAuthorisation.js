@@ -11,12 +11,13 @@ const withAuthorisation = condition => Component => {
     
     
     componentDidMount() {
-      this.listener = this.props.firebase.auth.onAuthStateChanged(
+      this.listener = this.props.firebase.fbAuthUserListener(
         authUser => {
           if (!condition(authUser)) {
             this.props.history.push(ROUTES.SIGN_IN);
           }
         },
+        () => this.props.history.push(ROUTES.SIGN_IN)
       );
     }
 
