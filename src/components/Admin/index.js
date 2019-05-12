@@ -28,11 +28,16 @@ class UserItemBase extends Component {
 
     this.state = {
       loading: false,
-      user:null,
+      user: null,
+      ...props.location.state, // user object comes from Link component in UserList 
     }
   }
 
   componentDidMount() {
+    if (this.state.user) {  // if navigated into the component from Link inside User list
+      return;               // the user has been passed and we don't have to pull it from firebase
+    }
+
     this.setState({ loading: true });
 
     this.props.firebase
@@ -48,7 +53,10 @@ class UserItemBase extends Component {
 
   componentWillUnmount() {
     this.props.firebase.user(this.props.match.params.id).off();
-    
+  }
+
+  onSendPasswordReset = () => {
+    this.props.firebase.fbPasswordReset(this.state.user.email);
   }
 
   render() {
@@ -61,8 +69,10 @@ class UserItemBase extends Component {
           <div>
             <p>Name: { user.username }</p>
             <p>Email: { user.email } </p>
-            <p>User type: { user.roles[ROLES.ADMIN] ? 'Admin User' : 'User' } </p>
+            <p>User type: { user.roles && user.roles[ROLES.ADMIN] ? 'Admin User' : 'User' } </p>
             <p>ID: ({ this.props.match.params.id })</p>
+            <button onClick={ this.onSendPasswordReset }
+            >Send Password Reset Email</button>
           </div>
         }
       </div>
@@ -123,7 +133,10 @@ class UserListBase extends Component {
                 <strong>Username:</strong> { user.username }
               </span>
               <span>
-                <Link to={`${ROUTES.ADMIN}/${user.uid}`}>
+                <Link to={{
+                    pathname: `${ROUTES.ADMIN}/${user.uid}`,
+                    state: { user }  
+                  }}>
                   Details
                 </Link>
               </span>
