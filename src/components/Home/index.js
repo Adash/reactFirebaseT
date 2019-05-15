@@ -66,7 +66,7 @@ class MessagesBase extends Component {
         });
         } else {
           //ignore for now 
-          this.setState({ loading: false })
+          this.setState({ loading: false, messages: null })
         }
       });
   }
@@ -102,11 +102,11 @@ class MessagesBase extends Component {
           <div>
             { loading && <div>Loading...</div> }
             <p>poop</p>
-            { messages.length === 0 ? "No Messages" :
+            { messages ? (
               <MessagesList 
                 messages={ messages } 
-                onRemoveMessage={ this.onRemoveMessage }
-              />
+                onRemoveMessage={ this.onRemoveMessage } /> 
+              ) : "No Messages"
             }
 
             <form onSubmit={ event => this.onCreateMessage(event, authUser) }>
