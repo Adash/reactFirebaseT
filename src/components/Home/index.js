@@ -12,17 +12,25 @@ const Home = () => (
   </div>
 );
 
-const MessagesList = ({ messages }) => (
+const MessagesList = ({ messages, onRemoveMessage }) => (
   <ul>
     { messages.map(message => (
-      <MessageItem key={ message.uid } message={ message } />
+      <MessageItem 
+        key={ message.uid } 
+        message={ message }
+        onRemoveMessage={ onRemoveMessage } 
+      />
     )) }
   </ul>
 );
 
-const MessageItem = ({ message }) => (
+const MessageItem = ({ message, onRemoveMessage }) => (
   <li>
     <strong>{ message.userId } </strong>{ message.text }
+    <button 
+      onClick={ () => onRemoveMessage(message.uid) }
+    >Delete
+    </button>
   </li>
 );
 
@@ -58,6 +66,7 @@ class MessagesBase extends Component {
         });
         } else {
           //ignore for now 
+          this.setState({ loading: false })
         }
       });
   }
@@ -81,6 +90,10 @@ class MessagesBase extends Component {
     this.setState({ text: '' });
   }
 
+  onRemoveMessage = uid => {
+    this.props.firebase.message(uid).remove();
+  }
+
   render() {
     const { text, messages, loading } = this.state;
     return (
@@ -90,7 +103,10 @@ class MessagesBase extends Component {
             { loading && <div>Loading...</div> }
             <p>poop</p>
             { messages.length === 0 ? "No Messages" :
-              <MessagesList messages={ messages } />
+              <MessagesList 
+                messages={ messages } 
+                onRemoveMessage={ this.onRemoveMessage }
+              />
             }
 
             <form onSubmit={ event => this.onCreateMessage(event, authUser) }>
