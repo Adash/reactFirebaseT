@@ -13,6 +13,7 @@ const Home = () => (
 );
 
 const MessagesList = ({ 
+  authUser,
   messages, 
   onRemoveMessage,
   onEditMessage,
@@ -21,6 +22,7 @@ const MessagesList = ({
     { messages.map(message => (
       <MessageItem 
         key={ message.uid } 
+        authUser={ authUser }
         message={ message }
         onRemoveMessage={ onRemoveMessage }
         onEditMessage={ onEditMessage } 
@@ -58,7 +60,7 @@ class MessageItem extends Component {
   }
 
   render() {
-    const { message, onRemoveMessage } = this.props;
+    const { authUser, message, onRemoveMessage } = this.props;
     const { editMode, editText } = this.state;
 
     return (
@@ -76,21 +78,25 @@ class MessageItem extends Component {
           </>
         )}
 
-        { editMode ? (
+        { authUser.uid === message.userId && 
           <>
-            <button onClick={ this.onSaveEditText } >Save</button>
-            <button onClick={ this.onToggleEditMode } >Reset</button>
-          </>
-        ) : (
-          <button onClick={ this.onToggleEditMode } >Edit</button>
-        )}
+            { editMode ? (
+              <>
+                <button onClick={ this.onSaveEditText } >Save</button>
+                <button onClick={ this.onToggleEditMode } >Reset</button>
+              </>
+            ) : (
+              <button onClick={ this.onToggleEditMode } >Edit</button>
+            )}
 
-        { !editMode && (
-          <button 
-            onClick={ () => onRemoveMessage(message.uid) }
-          >Delete
-          </button>
-        )}
+            { !editMode && (
+              <button 
+                onClick={ () => onRemoveMessage(message.uid) }
+              >Delete
+              </button>
+            )}
+          </>
+        }
       </li>
     )
   }
@@ -111,6 +117,7 @@ class MessagesBase extends Component {
     this.setState({ loading: true });
 
     this.props.firebase.messages()
+      .orderByChild('createdAt')
       .on('value', snapshot => {
         const messageObject = snapshot.val();
 
@@ -177,6 +184,7 @@ class MessagesBase extends Component {
             <p>poop</p>
             { messages ? (
               <MessagesList 
+                authUser={ authUser }
                 messages={ messages } 
                 onEditMessage={ this.onEditMessage }
                 onRemoveMessage={ this.onRemoveMessage } /> 
