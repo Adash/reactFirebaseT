@@ -110,14 +110,16 @@ class MessagesBase extends Component {
       loading: false,
       messages: [],
       text: '',
+      limit: 5,
     }
   }
 
-  componentDidMount() {
+  onListenForMessages() {
     this.setState({ loading: true });
 
     this.props.firebase.messages()
       .orderByChild('createdAt')
+      .limitToLast(this.state.limit)
       .on('value', snapshot => {
         const messageObject = snapshot.val();
 
@@ -138,6 +140,10 @@ class MessagesBase extends Component {
           this.setState({ loading: false, messages: null })
         }
       });
+  }
+
+  componentDidMount() { 
+    this.onListenForMessages();
   }
 
   componentWillUnmount() {
@@ -174,12 +180,22 @@ class MessagesBase extends Component {
     })
   }
 
+  onNextPage = () => {
+    this.setState(
+      state => ({ limit: state.limit + 5 }),
+      this.onListenForMessages, 
+    )
+  }
+
   render() {
     const { text, messages, loading } = this.state;
     return (
       <AuthUserContext.Consumer>
         {authUser => (
           <div>
+            { !loading && messages && (
+              <button onClick={ this.onNextPage }>More</button>
+            )}
             { loading && <div>Loading...</div> }
             <p>poop</p>
             { messages ? (
