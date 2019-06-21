@@ -1,3 +1,7 @@
+Basic scaffolding and blueprint for building Authentication/Authorisation mechanisms in React using Firebase Auth and Firebase Database.
+No styling has been added apart from Navbar in order to keep the structure as minimalistic and clean as possible so it can be easily re-used in other projects (do not copy and paste though :) )
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
